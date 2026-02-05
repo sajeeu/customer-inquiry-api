@@ -10,9 +10,26 @@ use Throwable;
 
 class InquiryController extends Controller
 {
-    public function index()
+
+    public function index(): JsonResponse
     {
-        //
+        $query = Inquiry::query()
+            ->orderByDesc('created_at');
+
+        if (request()->filled('category')) {
+            $query->where('category', request()->string('category'));
+        }
+
+        if (request()->filled('status')) {
+            $query->where('status', request()->string('status'));
+        }
+
+        $inquiries = $query->paginate(15);
+
+        return response()->json([
+            'success' => true,
+            'data' => $inquiries,
+        ]);
     }
 
     public function store(StoreInquiryRequest $request): JsonResponse
