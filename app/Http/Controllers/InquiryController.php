@@ -62,8 +62,20 @@ class InquiryController extends Controller
         }
     }
 
-    public function show($id)
+    public function show($id): JsonResponse
     {
-        //
+        $inquiry = Inquiry::find($id);
+
+        if (!$inquiry) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Inquiry not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $inquiry,
+        ]);
     }
 }
