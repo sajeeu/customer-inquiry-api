@@ -10,6 +10,24 @@ use Throwable;
 
 class InquiryController extends Controller
 {
+    private function successResponse($data = null, string $message = null, int $status = 200): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'data' => $data,
+        ], $status);
+    }
+
+    private function errorResponse(string $message, int $status): JsonResponse
+    {
+        return response()->json([
+            'success' => false,
+            'message' => $message,
+        ], $status);
+    }
+
+
 
     public function index(): JsonResponse
     {
@@ -26,10 +44,7 @@ class InquiryController extends Controller
 
         $inquiries = $query->paginate(15);
 
-        return response()->json([
-            'success' => true,
-            'data' => $inquiries,
-        ]);
+     return $this->successResponse($inquiries);
     }
 
     public function store(StoreInquiryRequest $request): JsonResponse
@@ -45,20 +60,12 @@ class InquiryController extends Controller
                 ]);
             });
 
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'id' => $inquiry->id,
-                ],
-                'message' => 'Inquiry submitted successfully.',
-            ], 201);
+            return $this->successResponse(['id' => $inquiry->id], 'Inquiry submitted successfully.', 201);
         } catch (Throwable $e) {
             report($e);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to submit inquiry. Please try again.',
-            ], 500);
+            return $this->errorResponse('Failed to submit inquiry. Please try again.', 500);
+
         }
     }
 
@@ -67,15 +74,9 @@ class InquiryController extends Controller
         $inquiry = Inquiry::find($id);
 
         if (!$inquiry) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Inquiry not found.',
-            ], 404);
+            return $this->errorResponse('Inquiry not found.', 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $inquiry,
-        ]);
+            return $this->successResponse($inquiry);
     }
 }
